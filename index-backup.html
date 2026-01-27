@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspire Colleges Narrowal | Premier Educational Institution</title>
+    <meta name="description" content="Aspire Colleges Narrowal - Premier educational institution offering Pre-Medical, Pre-Engineering, and Computer Science programs">
+    <meta name="keywords" content="aspire colleges, narrowal, education, pre-medical, pre-engineering, computer science">
+    <meta name="author" content="Aspire Colleges Narrowal">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* Additional inline styles for home page */
+        .hero {
+            background: linear-gradient(135deg, 
+                rgba(10, 77, 104, 0.9) 0%, 
+                rgba(8, 131, 149, 0.85) 100%), 
+                url('images/campus-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        /* Timer warning for iframe */
+        .iframe-timer-warning {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FF6B6B, #FFD166);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 9999;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Slider Styles */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        
+        .slide.active {
+            opacity: 1;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slide-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 40px;
+            padding-top: 100px;
+        }
+        
+        .slide-overlay h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .slide-overlay p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .slide-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .center-content {
+            text-align: center;
+        }
+        
+        .red-text {
+            color: #b40808 !important;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .gold-text {
+            color: #dfad3e !important;
+            font-size: 48px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .slide-description {
+            color: white;
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .apply-now-main-btn {
+            background: #b40808 !important;
+            color: white !important;
+            border: none;
+            padding: 15px 40px !important;
+            font-size: 1.2rem !important;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(180, 8, 8, 0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .apply-now-main-btn:hover {
+            background: #8a0606 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(180, 8, 8, 0.4);
+        }
+        
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 20;
+            padding: 0 20px;
+        }
+        
+        .slider-arrow {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #333;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .slider-arrow:hover {
+            background: var(--theme-primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .slider-pagination {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 20;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot.active {
+            background: var(--theme-primary);
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div class="page-transition" id="pageTransition">
+        <div class="loading-logo">
+            <div class="logo-circle">
+                <div class="logo-inner">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-border"></div>
+                <div class="logo-border delay-1"></div>
+                <div class="logo-border delay-2"></div>
+            </div>
+            <div class="loading-text">
+                Aspire Colleges Narrowal Campus
+                <span>Loading Excellence in Education...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Selector -->
+    <button class="theme-toggle-btn" id="themeToggleBtn">
+        <i class="fas fa-palette"></i>
+    </button>
+
+    <div class="theme-selector" id="themeSelector">
+        <h3>Select Theme</h3>
+        <div class="theme-colors">
+            <div class="theme-color default" data-theme="default" title="Default Theme"></div>
+            <div class="theme-color dark" data-theme="dark" title="Dark Theme"></div>
+            <div class="theme-color blue" data-theme="blue" title="Blue Theme"></div>
+            <div class="theme-color purple" data-theme="purple" title="Purple Theme"></div>
+            <div class="theme-color gold" data-theme="gold" title="Gold Theme"></div>
+            <div class="theme-color orange" data-theme="orange" title="Orange Theme"></div>
+            <div class="theme-color red" data-theme="red" title="Red Theme"></div>
+            <div class="theme-color yellow" data-theme="yellow" title="Yellow Theme"></div>
+            <div class="theme-color green" data-theme="green" title="Green Theme"></div>
+            <div class="theme-color logo" data-theme="logo" title="Logo Theme"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-container">
+            <a href="index-backup.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <div class="logo-main">Aspire Colleges</div>
+                    <div class="logo-sub">Narrowal Campus</div>
+                </div>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-icon">
+                    <svg aria-hidden="true" class="e-font-icon-svg e-fas-search" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                    </svg>
+                </div>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search programs, admissions, faculty..." autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <!-- Mobile Search Toggle -->
+            <button class="search-toggle" id="searchToggle">
+                <svg aria-hidden="true" class="e-font-icon-svg e-fas-search" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                    <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                </svg>
+            </button>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <nav class="nav">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index-backup.html" class="nav-link active">Home</a></li>
+                    <li><a href="about.html" class="nav-link">About Us</a></li>
+                    <li><a href="campus.html" class="nav-link">Our Campuses</a></li>
+                    <li><a href="programs.html" class="nav-link">Programmes</a></li>
+                    <li><a href="faculty.html" class="nav-link">Faculty</a></li>
+                    <li><a href="franchiseprogram.html" class="nav-link">Franchise Program</a></li>
+                    <li><a href="admissions.html" class="nav-link">Admissions</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact Us</a></li>
+                    <li><a href="lifeatcampus.html" class="nav-link">Life At campus</a></li>
+                    <li><a href="news-events.html" class="nav-link">News & Events</a></li>
+                    <li><a href="seed.html" class="nav-link">SEED</a></li>
+                    <li><a href="careers.html" class="nav-link">Careers</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content animate-fade-in">
+                    <h1>Excellence in Education at Aspire Colleges Narrowal</h1>
+                    <p>A premier educational institution committed to nurturing future leaders through academic excellence, character building, and holistic development.</p>
+                    <div class="hero-btns">
+                        <a href="admissions.html" class="btn btn-large animate-fade-in delay-1">
+                            <i class="fas fa-file-alt"></i> Apply Now
+                        </a>
+                        <a href="campus.html" class="btn btn-outline btn-large animate-fade-in delay-2">
+                            <i class="fas fa-map-marked-alt"></i> Campus Tour
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Preview -->
+        <section class="about section-padding">
+            <div class="container">
+                <div class="section-title text-center animate-fade-in">
+                    <h2>About Aspire Colleges</h2>
+                    <p class="section-subtitle">Shaping Futures Since 2005</p>
+                </div>
+                
+                <div class="about-content">
+                    <div class="about-image animate-slide-in-left">
+                        <!-- Revolution Slider -->
+                        <div class="revolution-slider-container">
+                            <div class="slider-container">
+                                <div class="slider-wrapper">
+                                    <!-- Slide 1 -->
+                                    <div class="slide active">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2023/12/1920x1080-New-1-2.jpg" 
+                                             alt="Aspire College Campus 1">
+                                        <div class="slide-overlay">
+                                            <h2>Aspire Colleges Campus</h2>
+                                            <p>State-of-the-art educational facilities</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 2 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2023/12/1920x1080-2-2.jpg" 
+                                             alt="Aspire College Admissions">
+                                        <div class="slide-content center-content">
+                                            <h3 class="red-text">PRE</h3>
+                                            <h2 class="gold-text">OPEN</h2>
+                                            <h3 class="red-text">ADMISSIONS</h3>
+                                            <a href="OnlineAdmissionformpages.html" class="apply-now-main-btn">
+                                                <i class="fas fa-file-alt"></i> APPLY NOW
+                                            </a>
+                                            <p class="slide-description">Click to start your online admission process</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 3 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/04/1920x1080-web-banner-pre.jpg" 
+                                             alt="Aspire College Banner">
+                                        <div class="slide-overlay">
+                                            <h2>Quality Education</h2>
+                                            <p>Comprehensive programs for all students</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 4 -->
+                                    <div class="slide">
+                                        <a href="franchiseprogram.html">
+                                            <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/03/Web-Banner-franchise.jpg" 
+                                                 alt="Franchise Program">
+                                        </a>
+                                        <div class="slide-overlay">
+                                            <h2>Franchise Program</h2>
+                                            <p>Join our network of educational excellence</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 5 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/02/Banner-2.jpg" 
+                                             alt="College Banner">
+                                        <div class="slide-overlay">
+                                            <h2>Student Success</h2>
+                                            <p>Your future starts here</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 6 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/03/Mela-banner-1.jpg" 
+                                             alt="College Mela">
+                                        <div class="slide-overlay">
+                                            <h2>Campus Events</h2>
+                                            <p>Vibrant student life</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Navigation Arrows -->
+                                <div class="slider-nav">
+                                    <button class="slider-arrow prev" onclick="prevSlide()">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="slider-arrow next" onclick="nextSlide()">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Pagination Dots -->
+                                <div class="slider-pagination">
+                                    <span class="dot active" onclick="currentSlide(1)"></span>
+                                    <span class="dot" onclick="currentSlide(2)"></span>
+                                    <span class="dot" onclick="currentSlide(3)"></span>
+                                    <span class="dot" onclick="currentSlide(4)"></span>
+                                    <span class="dot" onclick="currentSlide(5)"></span>
+                                    <span class="dot" onclick="currentSlide(6)"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-text animate-slide-in-right">
+                        <h2>Our Legacy of Excellence</h2>
+                        <p>Aspire Colleges Narrowal is a distinguished educational institution dedicated to providing quality education that empowers students to achieve their full potential.</p>
+                        <p>With state-of-the-art facilities, experienced faculty, and a comprehensive curriculum, we prepare students for success in higher education and beyond.</p>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item animate-fade-in">
+                                <div class="stat-number" data-count="95">0</div>
+                                <div class="stat-text">Success Rate</div>
+                            </div>
+                            <div class="stat-item animate-fade-in delay-1">
+                                <div class="stat-number" data-count="50">0</div>
+                                <div class="stat-text">Expert Faculty</div>
+                            </div>
+                            <div class="stat-item animate-fade-in delay-2">
+                                <div class="stat-number" data-count="2000">0</div>
+                                <div class="stat-text">Students Enrolled</div>
+                            </div>
+                            <div class="stat-item animate-fade-in delay-3">
+                                <div class="stat-number" data-count="18">0</div>
+                                <div class="stat-text">Years of Excellence</div>
+                            </div>
+                        </div>
+                        
+                        <a href="about.html" class="btn animate-fade-in">
+                            <i class="fas fa-book-open"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Programs Preview -->
+        <section class="programs-preview section-padding">
+            <div class="container">
+                <div class="section-title text-center animate-fade-in">
+                    <h2>Our Programs</h2>
+                    <p class="section-subtitle">Comprehensive curriculum designed for diverse educational needs</p>
+                </div>
+                
+                <div class="programs-grid">
+                    <div class="program-card animate-fade-in">
+                        <div class="program-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3>Pre-Medical</h3>
+                        <p>Comprehensive program for aspiring medical professionals with in-depth study of biology, chemistry, and physics.</p>
+                        <a href="programs.html#pre-medical" class="btn btn-small">Learn More</a>
+                    </div>
+                    
+                    <div class="program-card animate-fade-in delay-1">
+                        <div class="program-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Pre-Engineering</h3>
+                        <p>Rigorous program focusing on mathematics, physics, and chemistry to prepare students for engineering universities.</p>
+                        <a href="programs.html#pre-engineering" class="btn btn-small">Learn More</a>
+                    </div>
+                    
+                    <div class="program-card animate-fade-in delay-2">
+                        <div class="program-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h3>Computer Science</h3>
+                        <p>Modern curriculum covering programming, software development, and computer systems for technology careers.</p>
+                        <a href="programs.html#computer-science" class="btn btn-small">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="quick-links section-padding">
+            <div class="container">
+                <div class="quick-links-grid">
+                    <a href="campus.html" class="quick-link animate-fade-in">
+                        <i class="fas fa-map"></i>
+                        <h3>Campus Map</h3>
+                        <p>Explore our state-of-the-art facilities</p>
+                    </a>
+                    
+                    <a href="faculty.html" class="quick-link animate-fade-in delay-1">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h3>Faculty</h3>
+                        <p>Meet our experienced educators</p>
+                    </a>
+                    
+                    <a href="admissions.html" class="quick-link animate-fade-in delay-2">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Admissions</h3>
+                        <p>Start your application process</p>
+                    </a>
+                    
+                    <a href="contact.html" class="quick-link animate-fade-in delay-3">
+                        <i class="fas fa-phone-alt"></i>
+                        <h3>Contact Us</h3>
+                        <p>Get in touch with us</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">Aspire Colleges<br><span>Narrowal Campus</span></div>
+                    <p>Premier educational institution committed to nurturing future leaders through academic excellence, character building, and holistic development.</p>
+                    
+                    <div class="social-icons">
+                        <a href="#" class="social-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon linkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-icon youtube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index-backup.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="campus.html">Campus Map</a></li>
+                        <li><a href="programs.html">Programs</a></li>
+                        <li><a href="faculty.html">Faculty</a></li>
+                        <li><a href="admissions.html">Admissions</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> College Road, Near Narrowal Bypass, Punjab, Pakistan</p>
+                    <p><i class="fas fa-phone-alt"></i> +92 42 1234567</p>
+                    <p><i class="fas fa-envelope"></i> info@aspirecolleges.edu.pk</p>
+                    <p><i class="fas fa-clock"></i> Mon-Fri: 8:00 AM - 4:00 PM</p>
+                </div>
+                
+                <div class="footer-newsletter">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe for updates about admissions and events.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-accent">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Aspire Colleges Narrowal Campus. All Rights Reserved.</p>
+                <p>Designed with <i class="fas fa-heart"></i> for educational excellence</p>
+                <p><strong>Preview Mode Active - Full Website Coming Soon - InshAllah</strong></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Home page specific scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize animations
+            if (typeof initAdvancedAnimations === 'function') {
+                initAdvancedAnimations();
+            }
+            if (typeof initAnimations === 'function') {
+                initAnimations();
+            }
+            
+            // Hide loading screen after 2 seconds
+            setTimeout(() => {
+                const pageTransition = document.getElementById('pageTransition');
+                if (pageTransition) {
+                    pageTransition.classList.add('hidden');
+                    setTimeout(() => {
+                        pageTransition.style.display = 'none';
+                    }, 500);
+                }
+            }, 2000);
+            
+            // Initialize slider
+            initSliders();
+            
+            // Check if we're in iframe preview mode
+            if (window.top !== window.self) {
+                // We're inside an iframe - show preview mode indicator
+                const previewIndicator = document.createElement('div');
+                previewIndicator.className = 'iframe-timer-warning';
+                previewIndicator.innerHTML = `
+                    <i class="fas fa-clock"></i>
+                    <span>Preview Mode - Website shows for 30 seconds</span>
+                `;
+                document.body.appendChild(previewIndicator);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    previewIndicator.style.opacity = '0';
+                    previewIndicator.style.transition = 'opacity 0.5s';
+                    setTimeout(() => previewIndicator.remove(), 500);
+                }, 5000);
+            }
+        });
+        
+        // Slider functions
+        function initSliders() {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            let currentSlide = 0;
+            
+            function showSlide(n) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                currentSlide = (n + slides.length) % slides.length;
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.add('active');
+            }
+            
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+            
+            function prevSlide() {
+                showSlide(currentSlide - 1);
+            }
+            
+            function currentSlideFunc(n) {
+                showSlide(n - 1);
+            }
+            
+            // Auto slide every 5 seconds
+            let slideInterval = setInterval(nextSlide, 5000);
+            
+            // Pause on hover
+            const slider = document.querySelector('.slider-container');
+            if (slider) {
+                slider.addEventListener('mouseenter', () => clearInterval(slideInterval));
+                slider.addEventListener('mouseleave', () => {
+                    slideInterval = setInterval(nextSlide, 5000);
+                });
+            }
+            
+            // Attach to window for button clicks
+            window.nextSlide = nextSlide;
+            window.prevSlide = prevSlide;
+            window.currentSlide = currentSlideFunc;
+            
+            // Initialize first slide
+            showSlide(0);
+        }
+    </script>
+</body>
+</html>

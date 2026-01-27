@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspire Colleges Narrowal | Premier Educational Institution</title>
+    <meta name="description" content="Aspire Colleges Narrowal - Premier educational institution offering Pre-Medical, Pre-Engineering, and Computer Science programs">
+    <meta name="keywords" content="aspire colleges, narrowal, education, pre-medical, pre-engineering, computer science">
+    <meta name="author" content="Aspire Colleges Narrowal">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* Timer Overlay Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0a4d68, #088395);
+        }
+        
+        .timer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(180, 8, 8, 0.95) 0%,
+                rgba(223, 173, 62, 0.9) 50%,
+                rgba(5, 191, 219, 0.85) 100%
+            );
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: all 0.5s ease;
+        }
+        
+        .timer-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.1);
+        }
+        
+        .timer-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            border: 4px solid #FFD166;
+            box-shadow: 0 0 100px rgba(255, 209, 102, 0.5);
+            max-width: 800px;
+            width: 95%;
+            animation: containerPulse 2s infinite alternate;
+        }
+        
+        @keyframes containerPulse {
+            0% {
+                box-shadow: 0 0 60px rgba(255, 209, 102, 0.3);
+                transform: scale(1);
+            }
+            100% {
+                box-shadow: 0 0 120px rgba(255, 209, 102, 0.7);
+                transform: scale(1.02);
+            }
+        }
+        
+        .timer-title {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #FFD166, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .timer-display {
+            font-size: 8rem;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            margin: 30px 0;
+            text-shadow: 0 0 30px currentColor;
+            transition: color 0.3s;
+            animation: countdownPop 0.5s ease;
+        }
+        
+        @keyframes countdownPop {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .timer-display.normal { color: #4ECDC4; }
+        .timer-display.warning { color: #FFD166; animation: warningBlink 1s infinite; }
+        .timer-display.danger { color: #FF6B6B; animation: dangerBlink 0.5s infinite; }
+        
+        @keyframes warningBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes dangerBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .timer-message {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ECDC4, #06D6A0);
+            width: 100%;
+            transition: width 1s linear;
+        }
+        
+        .cycle-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .cycle-count {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        
+        .cycle-count span {
+            color: #FFD166;
+            font-weight: 900;
+            font-size: 2rem;
+        }
+        
+        .next-cycle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        /* Website Preview Window */
+        .website-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 99998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .website-preview.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .preview-header {
+            background: #0a4d68;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .preview-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .preview-timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #FFD166;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            height: calc(100vh - 70px);
+            border: none;
+        }
+
+        /* Sound Controls */
+        .sound-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999999;
+        }
+        
+        .sound-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #FFD166;
+            color: #FFD166;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sound-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+        
+        .sound-btn.muted {
+            color: #FF6B6B;
+            border-color: #FF6B6B;
+        }
+        
+        /* Timer warning for iframe */
+        .iframe-timer-warning {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FF6B6B, #FFD166);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 9999;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Loading Animation */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a4d68, #088395);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #FFD166;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Timer Overlay (Coming Soon Screen) -->
+    <div class="timer-overlay" id="timerOverlay">
+        <div class="timer-container">
+            <h1 class="timer-title">COMING SOON</h1>
+            <div class="timer-message">
+                <i class="fas fa-hourglass-start"></i>
+                Website preview starting in...
+            </div>
+            
+            <div class="timer-display normal" id="timerDisplay">00:30</div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="cycle-info">
+                <div class="cycle-count">
+                    Cycle: <span id="cycleNumber">1</span>
+                </div>
+                <div class="next-cycle">
+                    <i class="fas fa-sync-alt"></i>
+                    Website will show for 30 seconds, then return here
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; opacity: 0.7; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i>
+                Complete website development in progress - InshAllah
+            </div>
+        </div>
+    </div>
+    
+    <!-- Website Preview Window -->
+    <div class="website-preview" id="websitePreview">
+        <div class="preview-header">
+            <div class="preview-title">
+                <i class="fas fa-eye"></i> Website Preview
+            </div>
+            <div class="preview-timer">
+                Showing for: <span id="previewTimer">30</span>s
+            </div>
+        </div>
+        <iframe src="index-backup.html" class="preview-frame" id="websiteFrame"></iframe>
+    </div>
+    
+    <!-- Sound Control -->
+    <div class="sound-controls">
+        <button class="sound-btn" id="soundToggle" title="Toggle Sound">
+            <i class="fas fa-volume-up"></i>
+        </button>
+    </div>
+
+    <script>
+        // Configuration
+        const COMING_SOON_TIME = 30; // 30 seconds for coming soon screen
+        const WEBSITE_TIME = 30;     // 30 seconds for website preview
+        let currentCycle = 1;
+        let isWebsiteShowing = false;
+        let soundEnabled = true;
+        let audioContext;
+        
+        // DOM Elements
+        const timerOverlay = document.getElementById('timerOverlay');
+        const websitePreview = document.getElementById('websitePreview');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const previewTimer = document.getElementById('previewTimer');
+        const progressFill = document.getElementById('progressFill');
+        const cycleNumber = document.getElementById('cycleNumber');
+        const websiteFrame = document.getElementById('websiteFrame');
+        const soundToggle = document.getElementById('soundToggle');
+        const loadingScreen = document.getElementById('loadingScreen');
+        
+        // Timer Variables
+        let timeLeft = COMING_SOON_TIME;
+        let timerInterval;
+        
+        // Initialize
+        async function init() {
+            // Hide loading screen after 1.5 seconds
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }, 1500);
+            
+            // Initialize audio
+            initAudio();
+            
+            // Load cycle from localStorage or start at 1
+            currentCycle = parseInt(localStorage.getItem('websiteCycle')) || 1;
+            cycleNumber.textContent = currentCycle;
+            
+            // Start the first cycle (Coming Soon screen)
+            startComingSoonTimer();
+            
+            // Play startup sound
+            playStartupSound();
+        }
+        
+        // Initialize Audio
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log('Audio context initialized successfully');
+            } catch (e) {
+                console.log('Web Audio API not supported:', e);
+                soundEnabled = false;
+                soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                soundToggle.classList.add('muted');
+                soundToggle.title = 'Sound Not Supported';
+                soundToggle.style.opacity = '0.5';
+                soundToggle.style.cursor = 'not-allowed';
+            }
+            
+            // Sound toggle button
+            soundToggle.addEventListener('click', function() {
+                if (!audioContext && !window.AudioContext && !window.webkitAudioContext) return;
+                
+                soundEnabled = !soundEnabled;
+                this.innerHTML = soundEnabled ? 
+                    '<i class="fas fa-volume-up"></i>' : 
+                    '<i class="fas fa-volume-mute"></i>';
+                this.classList.toggle('muted', !soundEnabled);
+                this.title = soundEnabled ? 'Sound On' : 'Sound Off';
+                
+                // Test sound
+                if (soundEnabled) {
+                    playTestSound();
+                }
+            });
+        }
+        
+        // Audio Functions
+        function playStartupSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Error playing startup sound:', e);
+            }
+        }
+        
+        function playTickSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Error playing tick sound:', e);
+            }
+        }
+        
+        function playWarningSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            try {
+                // Play three beeps
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }, i * 300);
+                }
+            } catch (e) {
+                console.log('Error playing warning sound:', e);
+            }
+        }
+        
+        function playTransitionSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime); // G5
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime + 0.1); // C5
+                oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime + 0.2); // G4
+                oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime + 0.3); // C4
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } catch (e) {
+                console.log('Error playing transition sound:', e);
+            }
+        }
+        
+        function playTestSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } catch (e) {
+                console.log('Error playing test sound:', e);
+            }
+        }
+        
+        // Timer Functions
+        function startComingSoonTimer() {
+            isWebsiteShowing = false;
+            timeLeft = COMING_SOON_TIME;
+            
+            // Show timer overlay, hide website preview
+            timerOverlay.classList.remove('hidden');
+            websitePreview.classList.remove('active');
+            
+            // Update UI
+            timerDisplay.textContent = formatTime(timeLeft);
+            timerDisplay.className = 'timer-display normal';
+            updateProgressBar();
+            
+            // Start countdown
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateComingSoonTimer, 1000);
+            
+            // Play initial tick sound
+            if (soundEnabled) {
+                playTickSound();
+            }
+        }
+        
+        function updateComingSoonTimer() {
+            timeLeft--;
+            
+            // Animate the timer display
+            timerDisplay.style.animation = 'none';
+            setTimeout(() => {
+                timerDisplay.style.animation = 'countdownPop 0.5s ease';
+            }, 10);
+            
+            // Update display
+            timerDisplay.textContent = formatTime(timeLeft);
+            
+            // Update colors based on time
+            if (timeLeft <= 10) {
+                timerDisplay.className = 'timer-display danger';
+                if (timeLeft === 10) {
+                    playWarningSound();
+                }
+            } else if (timeLeft <= 20) {
+                timerDisplay.className = 'timer-display warning';
+            }
+            
+            // Update progress bar
+            updateProgressBar();
+            
+            // Play tick sound every second
+            if (soundEnabled && timeLeft > 0 && timeLeft <= COMING_SOON_TIME) {
+                playTickSound();
+            }
+            
+            // When timer reaches 0, show website
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                if (soundEnabled) {
+                    playTransitionSound();
+                }
+                setTimeout(() => {
+                    showWebsitePreview();
+                }, 500);
+            }
+        }
+        
+        function showWebsitePreview() {
+            isWebsiteShowing = true;
+            timeLeft = WEBSITE_TIME;
+            
+            // Hide timer overlay, show website preview
+            timerOverlay.classList.add('hidden');
+            websitePreview.classList.add('active');
+            
+            // Update preview timer
+            previewTimer.textContent = timeLeft;
+            
+            // Reload iframe to ensure fresh content
+            websiteFrame.src = websiteFrame.src;
+            
+            // Start website timer
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateWebsiteTimer, 1000);
+            
+            // Play tick sound for website preview
+            if (soundEnabled) {
+                playTickSound();
+            }
+        }
+        
+        function updateWebsiteTimer() {
+            timeLeft--;
+            previewTimer.textContent = timeLeft;
+            
+            // Update color based on time
+            if (timeLeft <= 10) {
+                previewTimer.style.color = '#FF6B6B';
+                previewTimer.style.animation = 'dangerBlink 0.5s infinite';
+                if (timeLeft === 10) {
+                    playWarningSound();
+                }
+            } else if (timeLeft <= 20) {
+                previewTimer.style.color = '#FFD166';
+                previewTimer.style.animation = 'warningBlink 1s infinite';
+            } else {
+                previewTimer.style.color = '#FFD166';
+                previewTimer.style.animation = '';
+            }
+            
+            // Play tick sound every second
+            if (soundEnabled && timeLeft > 0 && timeLeft <= WEBSITE_TIME) {
+                playTickSound();
+            }
+            
+            // When timer reaches 0, go back to coming soon
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                if (soundEnabled) {
+                    playTransitionSound();
+                }
+                currentCycle++;
+                localStorage.setItem('websiteCycle', currentCycle);
+                cycleNumber.textContent = currentCycle;
+                setTimeout(() => {
+                    startComingSoonTimer();
+                }, 500);
+            }
+        }
+        
+        function updateProgressBar() {
+            const totalTime = isWebsiteShowing ? WEBSITE_TIME : COMING_SOON_TIME;
+            const progress = ((totalTime - timeLeft) / totalTime) * 100;
+            progressFill.style.width = `${progress}%`;
+            
+            // Update progress bar color
+            if (isWebsiteShowing) {
+                progressFill.style.background = 'linear-gradient(90deg, #FFD166, #FB5607)';
+            } else {
+                if (timeLeft <= 10) {
+                    progressFill.style.background = 'linear-gradient(90deg, #FF6B6B, #EF476F)';
+                } else if (timeLeft <= 20) {
+                    progressFill.style.background = 'linear-gradient(90deg, #FFD166, #FB5607)';
+                } else {
+                    progressFill.style.background = 'linear-gradient(90deg, #4ECDC4, #06D6A0)';
+                }
+            }
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Handle iframe loading
+        websiteFrame.onload = function() {
+            // Inject warning into iframe
+            try {
+                const iframeDoc = websiteFrame.contentDocument || websiteFrame.contentWindow.document;
+                const warningDiv = iframeDoc.createElement('div');
+                warningDiv.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 10px;
+                        right: 10px;
+                        background: linear-gradient(135deg, #FF6B6B, #FFD166);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 10px;
+                        z-index: 9999;
+                        font-weight: 600;
+                        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        font-family: 'Montserrat', sans-serif;
+                    ">
+                        <i class="fas fa-clock"></i>
+                        Preview Mode: <span id="iframeTimer">${timeLeft}</span>s remaining
+                    </div>
+                `;
+                iframeDoc.body.appendChild(warningDiv);
+                
+                // Update iframe timer
+                const iframeTimer = warningDiv.querySelector('#iframeTimer');
+                const iframeInterval = setInterval(() => {
+                    iframeTimer.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(iframeInterval);
+                    }
+                }, 1000);
+            } catch (e) {
+                // Cross-origin restrictions, ignore
+            }
+        };
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Pause timers when tab is not active
+                clearInterval(timerInterval);
+                if (audioContext && audioContext.state === 'running') {
+                    audioContext.suspend().catch(e => console.log('Error suspending audio:', e));
+                }
+            } else {
+                // Resume timers when tab becomes active
+                if (isWebsiteShowing) {
+                    timerInterval = setInterval(updateWebsiteTimer, 1000);
+                } else {
+                    timerInterval = setInterval(updateComingSoonTimer, 1000);
+                }
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().catch(e => console.log('Error resuming audio:', e));
+                }
+            }
+        });
+        
+        // Start the system
+        window.onload = init;
+        
+        // Handle iOS audio unlock
+        function unlockAudio() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log('Audio context unlocked');
+                    if (soundEnabled) {
+                        playTestSound();
+                    }
+                }).catch(e => console.log('Error unlocking audio:', e));
+            }
+        }
+        
+        // Add user interaction events to unlock audio on iOS
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+        document.addEventListener('keydown', unlockAudio);
+        
+        // Prevent context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // Prevent text selection
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>
