@@ -3,679 +3,707 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aspire Colleges Narrowal | Coming Soon</title>
-    <meta name="description" content="Aspire Colleges Narrowal - Website Coming Soon">
+    <title>Aspire Colleges Narrowal | Premier Educational Institution</title>
+    <meta name="description" content="Aspire Colleges Narrowal - Premier educational institution offering Pre-Medical, Pre-Engineering, and Computer Science programs">
+    <meta name="keywords" content="aspire colleges, narrowal, education, pre-medical, pre-engineering, computer science">
     <meta name="author" content="Aspire Colleges Narrowal">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Additional inline styles for home page */
+        .hero {
+            background: linear-gradient(135deg, 
+                rgba(10, 77, 104, 0.9) 0%, 
+                rgba(8, 131, 149, 0.85) 100%), 
+                url('images/campus-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
         }
         
-        html, body {
+        /* Timer warning for iframe */
+        .iframe-timer-warning {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FF6B6B, #FFD166);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 9999;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Slider Styles */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .slider-wrapper {
+            position: relative;
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            position: fixed;
         }
         
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #0a4d68, #088395);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            position: fixed;
+        .slide {
+            position: absolute;
             top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        
+        .slide.active {
+            opacity: 1;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slide-overlay {
+            position: absolute;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 40px;
+            padding-top: 100px;
         }
         
-        /* Timer Overlay - Full Screen Always */
-        .timer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, 
-                rgba(180, 8, 8, 0.95) 0%,
-                rgba(223, 173, 62, 0.9) 50%,
-                rgba(5, 191, 219, 0.85) 100%
-            );
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-        }
-        
-        .timer-container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            border: 4px solid #FFD166;
-            box-shadow: 0 0 50px rgba(255, 209, 102, 0.5);
-            max-width: 90%;
-            width: 500px;
-            animation: containerPulse 2s infinite alternate;
-            margin: 20px;
-        }
-        
-        @keyframes containerPulse {
-            0% {
-                box-shadow: 0 0 30px rgba(255, 209, 102, 0.3);
-                transform: scale(1);
-            }
-            100% {
-                box-shadow: 0 0 60px rgba(255, 209, 102, 0.7);
-                transform: scale(1.02);
-            }
-        }
-        
-        .timer-title {
+        .slide-overlay h2 {
             font-size: 2.5rem;
-            margin-bottom: 15px;
-            background: linear-gradient(45deg, #FFD166, #FF6B6B, #4ECDC4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.2;
+            margin-bottom: 10px;
         }
         
-        .timer-display {
-            font-size: 4rem;
-            font-weight: 900;
-            font-family: 'Courier New', monospace;
-            margin: 20px 0;
-            text-shadow: 0 0 20px currentColor;
-            transition: color 0.3s;
-            animation: countdownPop 0.5s ease;
-        }
-        
-        @media (max-width: 768px) {
-            .timer-title {
-                font-size: 2rem;
-            }
-            
-            .timer-display {
-                font-size: 3rem;
-            }
-            
-            .timer-container {
-                padding: 20px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .timer-title {
-                font-size: 1.8rem;
-            }
-            
-            .timer-display {
-                font-size: 2.5rem;
-            }
-        }
-        
-        @keyframes countdownPop {
-            0% { transform: scale(0.8); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        .timer-display.normal { color: #4ECDC4; }
-        .timer-display.warning { color: #FFD166; animation: warningBlink 1s infinite; }
-        .timer-display.danger { color: #FF6B6B; animation: dangerBlink 0.5s infinite; }
-        
-        @keyframes warningBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        @keyframes dangerBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        .timer-message {
+        .slide-overlay p {
             font-size: 1.2rem;
-            margin-bottom: 20px;
             opacity: 0.9;
         }
         
-        .progress-bar {
+        .slide-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10;
             width: 100%;
-            height: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
+            padding: 20px;
         }
         
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4ECDC4, #06D6A0);
-            width: 100%;
-            transition: width 1s linear;
+        .center-content {
+            text-align: center;
         }
         
-        .cycle-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
+        .red-text {
+            color: #b40808 !important;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .gold-text {
+            color: #dfad3e !important;
+            font-size: 48px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .slide-description {
+            color: white;
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .apply-now-main-btn {
+            background: #b40808 !important;
+            color: white !important;
+            border: none;
+            padding: 15px 40px !important;
+            font-size: 1.2rem !important;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(180, 8, 8, 0.3);
+            text-decoration: none;
+            display: inline-block;
         }
         
-        .cycle-count {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+        .apply-now-main-btn:hover {
+            background: #8a0606 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(180, 8, 8, 0.4);
         }
         
-        .cycle-count span {
-            color: #FFD166;
-            font-weight: 900;
-            font-size: 1.5rem;
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 20;
+            padding: 0 20px;
         }
         
-        .next-cycle {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        /* Sound Controls */
-        .sound-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 999999;
-        }
-        
-        .sound-btn {
+        .slider-arrow {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid #FFD166;
-            color: #FFD166;
-            font-size: 1.5rem;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #333;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
         
-        .sound-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
+        .slider-arrow:hover {
+            background: var(--theme-primary);
+            color: white;
             transform: scale(1.1);
         }
         
-        .sound-btn.muted {
-            color: #FF6B6B;
-            border-color: #FF6B6B;
-        }
-        
-        /* Loading Animation */
-        .loading-screen {
-            position: fixed;
-            top: 0;
+        .slider-pagination {
+            position: absolute;
+            bottom: 20px;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0a4d68, #088395);
+            right: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            z-index: 999999;
-            transition: opacity 0.5s ease;
+            gap: 12px;
+            z-index: 20;
         }
         
-        .loading-spinner {
-            width: 80px;
-            height: 80px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #FFD166;
+        .dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Status Indicator */
-        .status-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #FFD166;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 999999;
-            border: 2px solid rgba(255, 209, 102, 0.3);
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #4ECDC4;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        .dot.active {
+            background: var(--theme-primary);
+            transform: scale(1.3);
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-spinner"></div>
-    </div>
-    
-    <!-- Status Indicator -->
-    <div class="status-indicator">
-        <div class="status-dot"></div>
-        <span>COMING SOON MODE</span>
-    </div>
-    
-    <!-- Timer Overlay (Coming Soon Screen) -->
-    <div class="timer-overlay" id="timerOverlay">
-        <div class="timer-container">
-            <h1 class="timer-title">COMING SOON</h1>
-            <div class="timer-message">
-                <i class="fas fa-hourglass-start"></i>
-                Website under construction...
-            </div>
-            
-            <div class="timer-display normal" id="timerDisplay">00:30</div>
-            
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            
-            <div class="cycle-info">
-                <div class="cycle-count">
-                    Auto-refresh: <span id="cycleNumber">1</span>
+    <!-- Loading Animation -->
+    <div class="page-transition" id="pageTransition">
+        <div class="loading-logo">
+            <div class="logo-circle">
+                <div class="logo-inner">
+                    <i class="fas fa-graduation-cap"></i>
                 </div>
-                <div class="next-cycle">
-                    <i class="fas fa-sync-alt"></i>
-                    Timer resets every 30 seconds
-                </div>
+                <div class="logo-border"></div>
+                <div class="logo-border delay-1"></div>
+                <div class="logo-border delay-2"></div>
             </div>
-            
-            <div style="margin-top: 20px; opacity: 0.7; font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i>
-                Complete website development in progress - InshAllah
+            <div class="loading-text">
+                Aspire Colleges Narrowal Campus
+                <span>Loading Excellence in Education...</span>
             </div>
         </div>
     </div>
-    
-    <!-- Sound Control -->
-    <div class="sound-controls">
-        <button class="sound-btn" id="soundToggle" title="Toggle Sound">
-            <i class="fas fa-volume-up"></i>
-        </button>
+
+    <!-- Theme Selector -->
+    <button class="theme-toggle-btn" id="themeToggleBtn">
+        <i class="fas fa-palette"></i>
+    </button>
+
+    <div class="theme-selector" id="themeSelector">
+        <h3>Select Theme</h3>
+        <div class="theme-colors">
+            <div class="theme-color default" data-theme="default" title="Default Theme"></div>
+            <div class="theme-color dark" data-theme="dark" title="Dark Theme"></div>
+            <div class="theme-color blue" data-theme="blue" title="Blue Theme"></div>
+            <div class="theme-color purple" data-theme="purple" title="Purple Theme"></div>
+            <div class="theme-color gold" data-theme="gold" title="Gold Theme"></div>
+            <div class="theme-color orange" data-theme="orange" title="Orange Theme"></div>
+            <div class="theme-color red" data-theme="red" title="Red Theme"></div>
+            <div class="theme-color yellow" data-theme="yellow" title="Yellow Theme"></div>
+            <div class="theme-color green" data-theme="green" title="Green Theme"></div>
+            <div class="theme-color logo" data-theme="logo" title="Logo Theme"></div>
+        </div>
     </div>
 
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-container">
+            <a href="index-backup.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <div class="logo-main">Aspire Colleges</div>
+                    <div class="logo-sub">Narrowal Campus</div>
+                </div>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-icon">
+                    <svg aria-hidden="true" class="e-font-icon-svg e-fas-search" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                    </svg>
+                </div>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search programs, admissions, faculty..." autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <!-- Mobile Search Toggle -->
+            <button class="search-toggle" id="searchToggle">
+                <svg aria-hidden="true" class="e-font-icon-svg e-fas-search" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                    <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                </svg>
+            </button>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <nav class="nav">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index-backup.html" class="nav-link active">Home</a></li>
+                    <li><a href="about.html" class="nav-link">About Us</a></li>
+                    <li><a href="campus.html" class="nav-link">Our Campuses</a></li>
+                    <li><a href="programs.html" class="nav-link">Programmes</a></li>
+                    <li><a href="faculty.html" class="nav-link">Faculty</a></li>
+                    <li><a href="franchiseprogram.html" class="nav-link">Franchise Program</a></li>
+                    <li><a href="admissions.html" class="nav-link">Admissions</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact Us</a></li>
+                    <li><a href="lifeatcampus.html" class="nav-link">Life At campus</a></li>
+                    <li><a href="news-events.html" class="nav-link">News & Events</a></li>
+                    <li><a href="seed.html" class="nav-link">SEED</a></li>
+                    <li><a href="careers.html" class="nav-link">Careers</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content animate-fade-in">
+                    <h1>Excellence in Education at Aspire Colleges Narrowal</h1>
+                    <p>A premier educational institution committed to nurturing future leaders through academic excellence, character building, and holistic development.</p>
+                    <div class="hero-btns">
+                        <a href="admissions.html" class="btn btn-large animate-fade-in delay-1">
+                            <i class="fas fa-file-alt"></i> Apply Now
+                        </a>
+                        <a href="campus.html" class="btn btn-outline btn-large animate-fade-in delay-2">
+                            <i class="fas fa-map-marked-alt"></i> Campus Tour
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Preview -->
+        <section class="about section-padding">
+            <div class="container">
+                <div class="section-title text-center animate-fade-in">
+                    <h2>About Aspire Colleges</h2>
+                    <p class="section-subtitle">Shaping Futures Since 2005</p>
+                </div>
+                
+                <div class="about-content">
+                    <div class="about-image animate-slide-in-left">
+                        <!-- Revolution Slider -->
+                        <div class="revolution-slider-container">
+                            <div class="slider-container">
+                                <div class="slider-wrapper">
+                                    <!-- Slide 1 -->
+                                    <div class="slide active">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2023/12/1920x1080-New-1-2.jpg" 
+                                             alt="Aspire College Campus 1">
+                                        <div class="slide-overlay">
+                                            <h2>Aspire Colleges Campus</h2>
+                                            <p>State-of-the-art educational facilities</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 2 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2023/12/1920x1080-2-2.jpg" 
+                                             alt="Aspire College Admissions">
+                                        <div class="slide-content center-content">
+                                            <h3 class="red-text">PRE</h3>
+                                            <h2 class="gold-text">OPEN</h2>
+                                            <h3 class="red-text">ADMISSIONS</h3>
+                                            <a href="OnlineAdmissionformpages.html" class="apply-now-main-btn">
+                                                <i class="fas fa-file-alt"></i> APPLY NOW
+                                            </a>
+                                            <p class="slide-description">Click to start your online admission process</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 3 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/04/1920x1080-web-banner-pre.jpg" 
+                                             alt="Aspire College Banner">
+                                        <div class="slide-overlay">
+                                            <h2>Quality Education</h2>
+                                            <p>Comprehensive programs for all students</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 4 -->
+                                    <div class="slide">
+                                        <a href="franchiseprogram.html">
+                                            <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/03/Web-Banner-franchise.jpg" 
+                                                 alt="Franchise Program">
+                                        </a>
+                                        <div class="slide-overlay">
+                                            <h2>Franchise Program</h2>
+                                            <p>Join our network of educational excellence</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 5 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/02/Banner-2.jpg" 
+                                             alt="College Banner">
+                                        <div class="slide-overlay">
+                                            <h2>Student Success</h2>
+                                            <p>Your future starts here</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Slide 6 -->
+                                    <div class="slide">
+                                        <img src="https://aspirecolleges.edu.pk/wp-content/uploads/2024/03/Mela-banner-1.jpg" 
+                                             alt="College Mela">
+                                        <div class="slide-overlay">
+                                            <h2>Campus Events</h2>
+                                            <p>Vibrant student life</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Navigation Arrows -->
+                                <div class="slider-nav">
+                                    <button class="slider-arrow prev" onclick="prevSlide()">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="slider-arrow next" onclick="nextSlide()">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Pagination Dots -->
+                                <div class="slider-pagination">
+                                    <span class="dot active" onclick="currentSlide(1)"></span>
+                                    <span class="dot" onclick="currentSlide(2)"></span>
+                                    <span class="dot" onclick="currentSlide(3)"></span>
+                                    <span class="dot" onclick="currentSlide(4)"></span>
+                                    <span class="dot" onclick="currentSlide(5)"></span>
+                                    <span class="dot" onclick="currentSlide(6)"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-text animate-slide-in-right">
+                        <h2>Our Legacy of Excellence</h2>
+                        <p>Aspire Colleges Narrowal is a distinguished educational institution dedicated to providing quality education that empowers students to achieve their full potential.</p>
+                        <p>With state-of-the-art facilities, experienced faculty, and a comprehensive curriculum, we prepare students for success in higher education and beyond.</p>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item animate-fade-in">
+                                <div class="stat-number" data-count="95">0</div>
+                                <div class="stat-text">Success Rate</div>
+                            </div>
+                            <div class="stat-item animate-fade-in delay-1">
+                                <div class="stat-number" data-count="50">0</div>
+                                <div class="stat-text">Expert Faculty</div>
+                            </div>
+                            <div class="stat-item animate-fade-in delay-2">
+                                <div class="stat-number" data-count="2000">0</div>
+                                <div class="stat-text">Students Enrolled</div>
+                            </div>
+                            <div class="stat-item animate-fade-in delay-3">
+                                <div class="stat-number" data-count="18">0</div>
+                                <div class="stat-text">Years of Excellence</div>
+                            </div>
+                        </div>
+                        
+                        <a href="about.html" class="btn animate-fade-in">
+                            <i class="fas fa-book-open"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Programs Preview -->
+        <section class="programs-preview section-padding">
+            <div class="container">
+                <div class="section-title text-center animate-fade-in">
+                    <h2>Our Programs</h2>
+                    <p class="section-subtitle">Comprehensive curriculum designed for diverse educational needs</p>
+                </div>
+                
+                <div class="programs-grid">
+                    <div class="program-card animate-fade-in">
+                        <div class="program-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3>Pre-Medical</h3>
+                        <p>Comprehensive program for aspiring medical professionals with in-depth study of biology, chemistry, and physics.</p>
+                        <a href="programs.html#pre-medical" class="btn btn-small">Learn More</a>
+                    </div>
+                    
+                    <div class="program-card animate-fade-in delay-1">
+                        <div class="program-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Pre-Engineering</h3>
+                        <p>Rigorous program focusing on mathematics, physics, and chemistry to prepare students for engineering universities.</p>
+                        <a href="programs.html#pre-engineering" class="btn btn-small">Learn More</a>
+                    </div>
+                    
+                    <div class="program-card animate-fade-in delay-2">
+                        <div class="program-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h3>Computer Science</h3>
+                        <p>Modern curriculum covering programming, software development, and computer systems for technology careers.</p>
+                        <a href="programs.html#computer-science" class="btn btn-small">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="quick-links section-padding">
+            <div class="container">
+                <div class="quick-links-grid">
+                    <a href="campus.html" class="quick-link animate-fade-in">
+                        <i class="fas fa-map"></i>
+                        <h3>Campus Map</h3>
+                        <p>Explore our state-of-the-art facilities</p>
+                    </a>
+                    
+                    <a href="faculty.html" class="quick-link animate-fade-in delay-1">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h3>Faculty</h3>
+                        <p>Meet our experienced educators</p>
+                    </a>
+                    
+                    <a href="admissions.html" class="quick-link animate-fade-in delay-2">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Admissions</h3>
+                        <p>Start your application process</p>
+                    </a>
+                    
+                    <a href="contact.html" class="quick-link animate-fade-in delay-3">
+                        <i class="fas fa-phone-alt"></i>
+                        <h3>Contact Us</h3>
+                        <p>Get in touch with us</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">Aspire Colleges<br><span>Narrowal Campus</span></div>
+                    <p>Premier educational institution committed to nurturing future leaders through academic excellence, character building, and holistic development.</p>
+                    
+                    <div class="social-icons">
+                        <a href="#" class="social-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon linkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-icon youtube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index-backup.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="campus.html">Campus Map</a></li>
+                        <li><a href="programs.html">Programs</a></li>
+                        <li><a href="faculty.html">Faculty</a></li>
+                        <li><a href="admissions.html">Admissions</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> College Road, Near Narrowal Bypass, Punjab, Pakistan</p>
+                    <p><i class="fas fa-phone-alt"></i> +92 42 1234567</p>
+                    <p><i class="fas fa-envelope"></i> info@aspirecolleges.edu.pk</p>
+                    <p><i class="fas fa-clock"></i> Mon-Fri: 8:00 AM - 4:00 PM</p>
+                </div>
+                
+                <div class="footer-newsletter">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe for updates about admissions and events.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-accent">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Aspire Colleges Narrowal Campus. All Rights Reserved.</p>
+                <p>Designed with <i class="fas fa-heart"></i> for educational excellence</p>
+                <p><strong>Preview Mode Active - Full Website Coming Soon - InshAllah</strong></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
     <script>
-        // Configuration - Only Coming Soon Mode
-        const TIMER_DURATION = 30; // 30 seconds countdown
-        let currentCycle = 1;
-        let soundEnabled = true;
-        let audioContext;
-        
-        // DOM Elements
-        const timerDisplay = document.getElementById('timerDisplay');
-        const progressFill = document.getElementById('progressFill');
-        const cycleNumber = document.getElementById('cycleNumber');
-        const soundToggle = document.getElementById('soundToggle');
-        const loadingScreen = document.getElementById('loadingScreen');
-        
-        // Timer Variables
-        let timeLeft = TIMER_DURATION;
-        let timerInterval;
-        
-        // Initialize
-        async function init() {
-            // Hide loading screen after 1.5 seconds
+        // Home page specific scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize animations
+            if (typeof initAdvancedAnimations === 'function') {
+                initAdvancedAnimations();
+            }
+            if (typeof initAnimations === 'function') {
+                initAnimations();
+            }
+            
+            // Hide loading screen after 2 seconds
             setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
-            }, 1500);
-            
-            // Initialize audio
-            initAudio();
-            
-            // Load cycle from localStorage or start at 1
-            currentCycle = parseInt(localStorage.getItem('timerCycle')) || 1;
-            cycleNumber.textContent = currentCycle;
-            
-            // Start the timer
-            startTimer();
-            
-            // Play startup sound
-            playStartupSound();
-        }
-        
-        // Initialize Audio
-        function initAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                console.log('Audio context initialized successfully');
-            } catch (e) {
-                console.log('Web Audio API not supported:', e);
-                soundEnabled = false;
-                soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                soundToggle.classList.add('muted');
-                soundToggle.title = 'Sound Not Supported';
-                soundToggle.style.opacity = '0.5';
-                soundToggle.style.cursor = 'not-allowed';
-            }
-            
-            // Sound toggle button
-            soundToggle.addEventListener('click', function() {
-                if (!audioContext && !window.AudioContext && !window.webkitAudioContext) return;
-                
-                soundEnabled = !soundEnabled;
-                this.innerHTML = soundEnabled ? 
-                    '<i class="fas fa-volume-up"></i>' : 
-                    '<i class="fas fa-volume-mute"></i>';
-                this.classList.toggle('muted', !soundEnabled);
-                this.title = soundEnabled ? 'Sound On' : 'Sound Off';
-                
-                // Test sound
-                if (soundEnabled) {
-                    playTestSound();
-                }
-            });
-        }
-        
-        // Audio Functions
-        function playStartupSound() {
-            if (!soundEnabled || !audioContext) return;
-            
-            try {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
-                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
-                
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (e) {
-                console.log('Error playing startup sound:', e);
-            }
-        }
-        
-        function playTickSound() {
-            if (!soundEnabled || !audioContext) return;
-            
-            try {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.1);
-            } catch (e) {
-                console.log('Error playing tick sound:', e);
-            }
-        }
-        
-        function playWarningSound() {
-            if (!soundEnabled || !audioContext) return;
-            
-            try {
-                for (let i = 0; i < 3; i++) {
+                const pageTransition = document.getElementById('pageTransition');
+                if (pageTransition) {
+                    pageTransition.classList.add('hidden');
                     setTimeout(() => {
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        
-                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                        
-                        oscillator.start(audioContext.currentTime);
-                        oscillator.stop(audioContext.currentTime + 0.3);
-                    }, i * 300);
+                        pageTransition.style.display = 'none';
+                    }, 500);
                 }
-            } catch (e) {
-                console.log('Error playing warning sound:', e);
-            }
-        }
-        
-        function playResetSound() {
-            if (!soundEnabled || !audioContext) return;
+            }, 2000);
             
-            try {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
+            // Initialize slider
+            initSliders();
+            
+            // Check if we're in iframe preview mode
+            if (window.top !== window.self) {
+                // We're inside an iframe - show preview mode indicator
+                const previewIndicator = document.createElement('div');
+                previewIndicator.className = 'iframe-timer-warning';
+                previewIndicator.innerHTML = `
+                    <i class="fas fa-clock"></i>
+                    <span>Preview Mode - Website shows for 30 seconds</span>
+                `;
+                document.body.appendChild(previewIndicator);
                 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime + 0.1);
-                oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime + 0.2);
-                oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime + 0.3);
-                
-                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.4);
-            } catch (e) {
-                console.log('Error playing reset sound:', e);
-            }
-        }
-        
-        function playTestSound() {
-            if (!soundEnabled || !audioContext) return;
-            
-            try {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.2);
-            } catch (e) {
-                console.log('Error playing test sound:', e);
-            }
-        }
-        
-        // Timer Functions
-        function startTimer() {
-            timeLeft = TIMER_DURATION;
-            
-            // Update UI
-            timerDisplay.textContent = formatTime(timeLeft);
-            timerDisplay.className = 'timer-display normal';
-            updateProgressBar();
-            
-            // Start countdown
-            clearInterval(timerInterval);
-            timerInterval = setInterval(updateTimer, 1000);
-            
-            // Play initial tick sound
-            if (soundEnabled) {
-                playTickSound();
-            }
-        }
-        
-        function updateTimer() {
-            timeLeft--;
-            
-            // Animate the timer display
-            timerDisplay.style.animation = 'none';
-            setTimeout(() => {
-                timerDisplay.style.animation = 'countdownPop 0.5s ease';
-            }, 10);
-            
-            // Update display
-            timerDisplay.textContent = formatTime(timeLeft);
-            
-            // Update colors based on time
-            if (timeLeft <= 10) {
-                timerDisplay.className = 'timer-display danger';
-                if (timeLeft === 10) {
-                    playWarningSound();
-                }
-            } else if (timeLeft <= 20) {
-                timerDisplay.className = 'timer-display warning';
-            }
-            
-            // Update progress bar
-            updateProgressBar();
-            
-            // Play tick sound every second
-            if (soundEnabled && timeLeft > 0 && timeLeft <= TIMER_DURATION) {
-                playTickSound();
-            }
-            
-            // When timer reaches 0, reset
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                if (soundEnabled) {
-                    playResetSound();
-                }
-                currentCycle++;
-                localStorage.setItem('timerCycle', currentCycle);
-                cycleNumber.textContent = currentCycle;
+                // Remove after 5 seconds
                 setTimeout(() => {
-                    startTimer();
-                }, 500);
+                    previewIndicator.style.opacity = '0';
+                    previewIndicator.style.transition = 'opacity 0.5s';
+                    setTimeout(() => previewIndicator.remove(), 500);
+                }, 5000);
             }
-        }
+        });
         
-        function updateProgressBar() {
-            const progress = ((TIMER_DURATION - timeLeft) / TIMER_DURATION) * 100;
-            progressFill.style.width = `${progress}%`;
+        // Slider functions
+        function initSliders() {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            let currentSlide = 0;
             
-            // Update progress bar color
-            if (timeLeft <= 10) {
-                progressFill.style.background = 'linear-gradient(90deg, #FF6B6B, #EF476F)';
-            } else if (timeLeft <= 20) {
-                progressFill.style.background = 'linear-gradient(90deg, #FFD166, #FB5607)';
-            } else {
-                progressFill.style.background = 'linear-gradient(90deg, #4ECDC4, #06D6A0)';
+            function showSlide(n) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                currentSlide = (n + slides.length) % slides.length;
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.add('active');
             }
+            
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+            
+            function prevSlide() {
+                showSlide(currentSlide - 1);
+            }
+            
+            function currentSlideFunc(n) {
+                showSlide(n - 1);
+            }
+            
+            // Auto slide every 5 seconds
+            let slideInterval = setInterval(nextSlide, 5000);
+            
+            // Pause on hover
+            const slider = document.querySelector('.slider-container');
+            if (slider) {
+                slider.addEventListener('mouseenter', () => clearInterval(slideInterval));
+                slider.addEventListener('mouseleave', () => {
+                    slideInterval = setInterval(nextSlide, 5000);
+                });
+            }
+            
+            // Attach to window for button clicks
+            window.nextSlide = nextSlide;
+            window.prevSlide = prevSlide;
+            window.currentSlide = currentSlideFunc;
+            
+            // Initialize first slide
+            showSlide(0);
         }
-        
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-        
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                // Pause timers when tab is not active
-                clearInterval(timerInterval);
-                if (audioContext && audioContext.state === 'running') {
-                    audioContext.suspend().catch(e => console.log('Error suspending audio:', e));
-                }
-            } else {
-                // Resume timers when tab becomes active
-                timerInterval = setInterval(updateTimer, 1000);
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume().catch(e => console.log('Error resuming audio:', e));
-                }
-            }
-        });
-        
-        // Start the system
-        window.onload = init;
-        
-        // Handle iOS audio unlock
-        function unlockAudio() {
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    console.log('Audio context unlocked');
-                    if (soundEnabled) {
-                        playTestSound();
-                    }
-                }).catch(e => console.log('Error unlocking audio:', e));
-            }
-        }
-        
-        // Add user interaction events to unlock audio on iOS
-        document.addEventListener('click', unlockAudio);
-        document.addEventListener('touchstart', unlockAudio);
-        document.addEventListener('keydown', unlockAudio);
-        
-        // Prevent context menu
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        // Prevent text selection
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        // Disable right-click
-        document.oncontextmenu = function() {
-            return false;
-        };
-        
-        // Disable keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-            if (e.keyCode === 123 || 
-                (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
-                (e.ctrlKey && e.shiftKey && e.keyCode === 74) ||
-                (e.ctrlKey && e.keyCode === 85)) {
-                e.preventDefault();
-                return false;
-            }
-        });
     </script>
 </body>
 </html>
